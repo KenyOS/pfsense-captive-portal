@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" /> 
+<title>Printable pfSense Card Funcionario Generator</title>
+<style type="text/css">
+    @page {
+            size: A4 landscape;
+    }
+    body {
+            font-family: verdana, arial, sans-serif ;
+            font-size: 12px ;
+            }
+    #maintable {
+        border-spacing: 15px;
+        display: none;
+    }
+    td.voucher  {
+            border-top: 1px dotted #999999 ;
+            border-bottom: 1px dotted #999999 ;
+            border-left: 1px dotted  #999999;
+            border-right: 1px dotted  #999999;
+            padding: 20px 20px 10px 10px;
+            text-align: left ;
+            background-position: right top;
+            background-size: 175px 60px;
+            background-repeat: no-repeat;
+            background-origin: content-box;
+    }
+    tr.voucher {
+            page-break-inside: avoid;
+       }
+    #tpl {
+        display: none;
+    }
+@media print {
+    #generator {
+        display: none;
+    }
+    @page {
+            size: A4 landscape;
+            background-color: lightgreen;
+
+    }
+}
+</style>
+</head>
+
+<body>
+<div id="generator">
+<h1>Printable pfSense Card Funcionario</h1>
+<p><strong>Use in Chrome, not Firefox!!!1!!!11</strong> -- the print function is much more handy</p>
+<h2>How does it work?</h2>
+<ul>
+<li>Get a new voucher roll: pfsense->Services->Edit->Vouchers and download the .csv-Datei
+<li>Paste the coucher-codes without the  #-headline into the text area. But you may leave the " quotes and spaces around the codes.
+<li>Click Generate
+<li>Print it right from the browser in <strong>A4 Landscape</strong>, using <strong>no header/footer</strong> but <strong>background images</strong>. Everything unnecessary will be automagically hidden in the print.
+</ul>
+
+<form id="form">
+<textarea id="vouchers" rows="40">
+" voucher1"
+" voucher2"
+" voucher3"
+
+</textarea>
+<button type="button" id="button">Generate</button>
+<button type="button" id="print" disabled>Print</button>
+</form>
+<p>
+    The stock picture is <a href="https://www.freepik.com/free-vector/nice-collection-of-real-estate-logos_1978041.htm">Designed by Freepik</a>
+</p>
+
+</div>
+<div id="tpl">
+       <h1>WiFi - Acesso ao Portal <img src="https://github.com/KenyOS/pfsense-captive-portal/raw/master/captiveportal-logo.png" style="width: 140px;height: 60px;"/></h1><br>
+       <table>
+        <tr><th>SSID:</th><td>Techmeter</td></tr>
+        <tr><th>Login:</th><td><input type="text" id="fname" name="fname"><br></td></tr>
+        <tr><th>Senha:</th><td id="code">FIXME</td></tr>
+       </table>
+       <p>
+       Acesso restrito a <strong>1 pessoa</strong> ao Portal da Techmeter.<br /> Digita&ccedil;&atilde;o do usu&aacute;rio e a senha &eacute; necess&aacute;rio uma &uacute;nica vez(permanente). Se caso for solicitado mais de uma vez, provavelmente o seu sistema esteja usando o recurso chamado de &quot;endere&ccedil;o de MAC aleat&oacute;rio&quot;. (Ativado por padr&atilde;o come&ccedil;ando pelos Sistemas Android 10.0, IOS 14 e Windows 10).<br /> Desative o &quot;endere&ccedil;o de MAC aleat&oacute;rio&quot; encontrado nas configura&ccedil;&otilde;es do Wifi para a Rede &quot;Techmeter&quot;, se caso n&atilde;o quiser digitar toda vez que for conectar ao Portal.
+       </p>
+       
+   </div>
+
+<table id="maintable">
+<tbody id=table>
+</tbody>
+</table>
+
+<script>
+document.getElementById("print").addEventListener('click',printEm);
+document.getElementById("button").addEventListener('click',buildEm);
+document.getElementById("vouchers").addEventListener('focus',clearEm);
+
+function clearEm() {
+    var vouchers=document.getElementById("vouchers");
+    if(!vouchers.value.search("\" voucher1")) {
+        vouchers.value="";
+    }
+}
+
+function printEm() {
+    window.print();
+}
+
+function buildEm() {
+    var vouchers=document.getElementById("vouchers").value.trim().split('\n');
+
+    if (vouchers.length%2) {
+        alert("Es muss eine gerade Anzahl an Voucher-Codes sein!");
+        return 0;
+    }
+
+    var tpl=document.getElementById("tpl");
+    var code=document.getElementById("code");
+    var table=document.getElementById("table");
+    var tr;
+
+
+    document.getElementById("maintable").style.display="none";
+    document.getElementById("table").innerHTML="";
+
+    for(var i=0;i<vouchers.length;i++) {
+        if(!(i%2)) {
+            tr=document.createElement("tr");
+            tr.className="voucher";
+        }
+
+        // pfsense prints the voucher codes as something like
+        //   " aaaaaaaaaa"
+        // into the csv -> account for this!
+        code.innerHTML=vouchers[i].replace(/"/g,'').trim();
+
+        var foo = tpl.cloneNode(true);
+        foo.style.display="block";
+        foo.removeAttribute("id");
+        var td=document.createElement("td");
+        td.className="voucher";
+        td.appendChild(foo);
+        tr.appendChild(td);
+
+        if((i%2)) {
+            table.appendChild(tr);
+        }
+
+    }
+    document.getElementById("maintable").style.display="block";
+    document.getElementById("print").disabled = false;
+}
+
+</script>
+
+</body>
+</html>
